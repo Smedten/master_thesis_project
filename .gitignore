@@ -1,4 +1,7 @@
 __pycache__/
 venv/
 *.xlsx
-evaluation/results/
+
+evaluation/results/*
+!evaluation/results/summary.csv
+!evaluation/results/sample_scenarios.json

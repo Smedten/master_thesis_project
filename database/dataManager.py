@@ -69,11 +69,21 @@ def getEvAtDatetime(datetime_value: int) -> List[pd.DataFrame] | None:
     return None
 
 
-def loadSpotPriceData():
-    if config.TIME_RESOLUTION == 3600:
-        df = pd.read_csv(os.path.join(config.DATA_FILEPATH, "ElspotPrices.csv"), dtype="unicode", delimiter=",", skiprows=0)
+def _spot_price_path_for_resolution(resolution: int) -> str:
+    if resolution == 3600:
+        filename = "ElspotPrices.csv"
     else:
-        df = pd.read_csv(os.path.join(config.DATA_FILEPATH, "ElspotPrices_15min.csv"), dtype="unicode", delimiter=",", skiprows=0)
+        filename = "ElspotPrices_15min.csv"
+
+    filepath = os.path.join(config.DATA_FILEPATH, filename)
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Spot price file not found at {filepath}")
+
+    return filepath
+
+
+def loadSpotPriceData():
+    df = pd.read_csv(_spot_price_path_for_resolution(config.TIME_RESOLUTION), dtype="unicode", delimiter=",", skiprows=0)
     df['HourDK'] = pd.to_datetime(df['HourDK'], errors='coerce')
     df['SpotPriceDKK'] = pd.to_numeric(df['SpotPriceDKK'], errors='coerce')
     return df
@@ -158,11 +168,11 @@ def load_and_prepare_prices(start_ts, horizon_slots, resolution):
     """
 
     if resolution == 3600:
-        spot = pd.read_csv(os.path.join(config.DATA_FILEPATH, "Elspotprices.csv"), parse_dates=['HourDK'], usecols=['HourDK', 'SpotPriceDKK'])
+        spot = pd.read_csv(_spot_price_path_for_resolution(resolution), parse_dates=['HourDK'], usecols=['HourDK', 'SpotPriceDKK'])
         mfrr = pd.read_csv(os.path.join(config.DATA_FILEPATH, "mFRR.csv"), parse_dates=['HourDK'], usecols=['HourDK', 'mFRR_UpPriceDKK', 'mFRR_DownPriceDKK', "mFRR_UpPurchased", "mFRR_DownPurchased"])
         act = pd.read_csv(os.path.join(config.DATA_FILEPATH, "Regulating.csv"), parse_dates=['HourDK'], usecols=['HourDK', 'BalancingPowerPriceUpDKK', 'BalancingPowerPriceDownDKK', 'ImbalancePriceDKK', "mFRRUpActBal", "mFRRDownActBal"])
     else:
-        spot = pd.read_csv(os.path.join(config.DATA_FILEPATH, "Elspotprices_15min.csv"), parse_dates=['HourDK'], usecols=['HourDK', 'SpotPriceDKK'])
+        spot = pd.read_csv(_spot_price_path_for_resolution(resolution), parse_dates=['HourDK'], usecols=['HourDK', 'SpotPriceDKK'])
         mfrr = pd.read_csv(os.path.join(config.DATA_FILEPATH, "mFRR_15min.csv"), parse_dates=['HourDK'], usecols=['HourDK', 'mFRR_UpPriceDKK', 'mFRR_DownPriceDKK', "mFRR_UpPurchased", "mFRR_DownPurchased"])
         act = pd.read_csv(os.path.join(config.DATA_FILEPATH, "Regulating_15min.csv"), parse_dates=['HourDK'], usecols=['HourDK', 'BalancingPowerPriceUpDKK', 'BalancingPowerPriceDownDKK', 'ImbalancePriceDKK', "mFRRUpActBal", "mFRRDownActBal"])
 
