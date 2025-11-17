@@ -1,3 +1,15 @@
+pandas
+openpyxl
+pulp
+scipy
+scikit-learn
+seaborn
+matplotlib
+pytest
+PyQt6
+fastcluster
+streamlit
+plotly
 numpy==1.26.4
 pandas==2.2.2
 pulp==2.7.0
