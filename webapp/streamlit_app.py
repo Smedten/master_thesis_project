@@ -172,6 +172,31 @@ def main():
         )
         st.caption(scenario["description"])
 
+        st.markdown("---")
+        st.header("Evaluation filters")
+        st.caption("Interactively slice the evaluation summary with the bundled sample data.")
+
+        type_options = sorted(summary_df["TYPE"].unique())
+        mode_options = sorted(summary_df["MODE"].unique())
+        cluster_options = sorted(summary_df["CLUSTER_METHOD"].unique())
+        cluster_counts = sorted(summary_df["NUM_CLUSTERS"].unique())
+
+        selected_types = st.multiselect("Type", type_options, default=type_options)
+        selected_modes = st.multiselect("Mode", mode_options, default=mode_options)
+        selected_clusters = st.multiselect(
+            "Cluster method", cluster_options, default=cluster_options
+        )
+        selected_cluster_counts = st.multiselect(
+            "Cluster count", cluster_counts, default=cluster_counts
+        )
+
+    filtered_summary = summary_df[
+        summary_df["TYPE"].isin(selected_types)
+        & summary_df["MODE"].isin(selected_modes)
+        & summary_df["CLUSTER_METHOD"].isin(selected_clusters)
+        & summary_df["NUM_CLUSTERS"].isin(selected_cluster_counts)
+    ]
+
     col1, col2 = st.columns([1.2, 1])
 
     with col1:
@@ -187,10 +212,15 @@ def main():
     st.subheader("Evaluation summary")
     col3, col4 = st.columns([1, 1])
 
-    with col3:
-        st.plotly_chart(build_optimality_chart(summary_df), use_container_width=True)
-    with col4:
-        st.dataframe(summary_df, use_container_width=True, height=420)
+    if filtered_summary.empty:
+        st.warning("No rows match the current filter selection. Adjust filters to see results.")
+    else:
+        with col3:
+            st.plotly_chart(
+                build_optimality_chart(filtered_summary), use_container_width=True
+            )
+        with col4:
+            st.dataframe(filtered_summary, use_container_width=True, height=420)
 
     st.markdown("### Download results")
     schedule_df = pd.DataFrame(scenario["schedule"])  # type: ignore[arg-type]

@@ -73,11 +73,11 @@ python -m evaluation.dashboard --output evaluation/results/dashboard_overview.pn
    ```bash
    python3 main.py
    ```
-3. Launch the Streamlit demo:
+3. Launch the Streamlit demo (no database required):
    ```bash
    streamlit run webapp/streamlit_app.py
    ```
-   The page loads sample scenarios from `evaluation/results/sample_scenarios.json` and reuses evaluation outputs in `evaluation/results/summary.csv`.
+   The page ships with bundled CSV/JSON outputs in `evaluation/results`, so you can open the local URL in your browser and immediately click through sample scenarios and filters to see the graphs update.
 
 ## Deployment tips
 The Streamlit demo is intentionally lightweight so it can be deployed to a free tier platform and shared via URL.
